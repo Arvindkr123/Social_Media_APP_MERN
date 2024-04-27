@@ -19,7 +19,12 @@ import { useState } from "react";
 const Actions = ({ liked, setLiked }) => {
   return (
     <Flex flexDirection="column">
-      <Flex gap={3} my={2} onClick={(e) => e.preventDefault()}>
+      <Flex
+        cursor={"pointer"}
+        gap={3}
+        my={2}
+        onClick={(e) => e.preventDefault()}
+      >
         <svg
           aria-label="Like"
           color={liked ? "rgb(237, 73, 86)" : ""}
