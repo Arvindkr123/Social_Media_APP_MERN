@@ -102,3 +102,31 @@ export const likeAndUnlikePostController = async (req, res) => {
       .json({ message: "Something went wrong", error: error.message });
   }
 };
+
+export const replyToPostController = async (req, res) => {
+  try {
+    const { id: postId } = req.params;
+    const userId = req.user._id;
+    const { text } = req.body;
+    const userProfilePic = req.user.userProfilePic;
+    const username = req.user.username;
+
+    if (!text) {
+      return res.status(400).json({ message: "Text Field is required!" });
+    }
+
+    const post = await PostModel.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found!" });
+    }
+
+    const reply = { userId, text, userProfilePic, username };
+    post.replies.push(reply);
+    await post.save();
+    res.status(200).json({ message: "post replied successfully", post });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Something went wrong", error: error.message });
+  }
+};
