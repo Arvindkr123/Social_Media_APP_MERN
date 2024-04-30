@@ -5,10 +5,15 @@ import {
   deletePostController,
   likeAndUnlikePostController,
   replyToPostController,
+  getFeedPostController,
 } from "../controllers/posts.controllers.js";
 import protectRoutes from "../middlewares/protectRoutes.js";
 
 const router = Router();
+
+// get the feed posts
+router.get("/feed", protectRoutes, getFeedPostController);
+
 router
   .route("/:postId")
   .get(getPostController)

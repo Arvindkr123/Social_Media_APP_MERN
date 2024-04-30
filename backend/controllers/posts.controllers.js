@@ -130,3 +130,20 @@ export const replyToPostController = async (req, res) => {
       .json({ message: "Something went wrong", error: error.message });
   }
 };
+
+export const getFeedPostController = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(500).json({ message: "User not found!" });
+    }
+    const following = user.following;
+    const feedPosts = await PostModel.find({
+      postedBy: { $in: following },
+    }).sort({ createdAt: -1 });
+    res.status(200).json({ feedPosts });
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong", error: error });
+  }
+};
