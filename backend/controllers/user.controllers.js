@@ -7,7 +7,7 @@ export const signupUserController = async (req, res) => {
     const { name, username, email, password } = req.body;
     const user = await UserModel.findOne({ $or: [{ email }, { username }] });
     if (user) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({ error: "User already exists" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -29,10 +29,10 @@ export const signupUserController = async (req, res) => {
         username: newUser.username,
       });
     } else {
-      res.status(400).json({ message: "inavalid user data" });
+      res.status(400).json({ error: "inavalid user data" });
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
     console.log(error.message);
   }
 };
@@ -46,7 +46,7 @@ export const loginUserController = async (req, res) => {
       user?.password || ""
     );
     if (!user || !isCorrectPassword) {
-      return res.status(401).json({ message: "Invalid password and username" });
+      return res.status(401).json({ error: "Invalid password and username" });
     }
     generateTokenAndSetCookie(user._id, res);
     res.status(201).json({
@@ -56,7 +56,7 @@ export const loginUserController = async (req, res) => {
       username: user.username,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -66,7 +66,7 @@ export const logoutUserController = async (req, res) => {
 
     res.status(200).json({ message: "user logout successfully" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -83,11 +83,11 @@ export const followUserController = async (req, res) => {
     if (id === req.user._id.toString()) {
       return res
         .status(400)
-        .json({ message: "you can not follow / unfollow yourself" });
+        .json({ error: "you can not follow / unfollow yourself" });
     }
 
     if (!userToModify || !currentUser) {
-      return res.status(400).json({ message: "user not found!" });
+      return res.status(400).json({ error: "user not found!" });
     }
 
     const isFollowing = currentUser.following.includes(id);
@@ -112,7 +112,7 @@ export const followUserController = async (req, res) => {
       res.status(200).json({ message: "followed user successfully" });
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -124,10 +124,10 @@ export const updateUserController = async (req, res) => {
     if (req.params.id !== userId.toString()) {
       return res
         .status(400)
-        .json({ message: "you can not update other user profile" });
+        .json({ error: "you can not update other user profile" });
     }
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(400).json({ error: "User not found" });
     }
 
     if (password) {
@@ -144,7 +144,7 @@ export const updateUserController = async (req, res) => {
     user = await user.save();
     res.status(200).json({ message: "profile updated successfully", user });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -156,10 +156,10 @@ export const getUserProfileController = async (req, res) => {
       .select("-updatedAt");
 
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(400).json({ error: "User not found" });
     }
     res.status(200).json({ user });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
