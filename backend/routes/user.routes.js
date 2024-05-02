@@ -21,6 +21,6 @@ router.get("/profile/:username", getUserProfileController);
 router.post("/follow/:id", protectRoutes, followUserController);
 
 // update user profile
-router.post("/update/:id", protectRoutes, updateUserController);
+router.put("/update/:id", protectRoutes, updateUserController);
 
 export default router;

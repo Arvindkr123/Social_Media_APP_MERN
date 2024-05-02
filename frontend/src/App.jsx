@@ -4,14 +4,15 @@ import UserPage from "./pages/UserPage";
 import PostPage from "./pages/PostPage";
 import Header from "./components/Header";
 import HomePage from "./pages/HomePage";
-import AuthPage from "./pages/AuthPage";
+import AuthPage from "./pages/AuthPage.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
 import { useRecoilValue } from "recoil";
 import userAtom from "./atoms/user.atoms";
 import LogoutButton from "./components/LogoutButton";
 
 function App() {
   const user = useRecoilValue(userAtom);
-  console.log(user);
+  //console.log(user);
   return (
     <Container maxW={"620px"}>
       <Header />
@@ -23,6 +24,10 @@ function App() {
         <Route
           path="/auth"
           element={!user ? <AuthPage /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/updateProfile"
+          element={user ? <ProfilePage /> : <Navigate to="/auth" />}
         />
         <Route path="/:username" element={<UserPage />} />
         <Route path="/:username/post/:pid" element={<PostPage />} />
