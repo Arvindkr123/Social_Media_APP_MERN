@@ -9,7 +9,7 @@ const useImagePreview = () => {
     //console.log(file);
     if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
-      console.log(reader);
+      //console.log(reader);
       reader.onloadend = () => {
         setImageUrl(reader.result);
       };
