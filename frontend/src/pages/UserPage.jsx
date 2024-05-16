@@ -8,7 +8,7 @@ const UserPage = () => {
   const { username } = useParams();
   const [user, setUser] = useState(null);
   const showToast = useShowToast();
-  console.log(user);
+  //console.log(user);
   useEffect(() => {
     const getUser = async () => {
       try {

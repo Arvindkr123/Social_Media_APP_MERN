@@ -23,7 +23,7 @@ const UserHeader = ({ user }) => {
   const currentUser = useRecoilValue(userAtom);
   const showToast = useShowToast();
   const [updating, setUpdating] = useState(false);
-  console.log(currentUser, user);
+  //console.log(currentUser);
   const [following, setFollowing] = useState(
     user.followers.includes(currentUser._id)
   );
@@ -125,7 +125,7 @@ const UserHeader = ({ user }) => {
 
       <Text>{user.bio}</Text>
       {currentUser._id === user._id && (
-        <Link to="/update">
+        <Link to="/updateProfile">
           <Button>Update Profile</Button>
         </Link>
       )}

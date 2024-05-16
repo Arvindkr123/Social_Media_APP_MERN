@@ -1,26 +1,33 @@
 import PostModel from "../models/post.models.js";
 import UserModel from "../models/user.models.js";
+import { v2 as cloudinary } from "cloudinary";
 
 export const createPostController = async (req, res, next) => {
-  const { postedBy, text, img } = req.body;
+  const { postedBy, text } = req.body;
+  let { img } = req.body;
   try {
     if (!postedBy || !text) {
       return res
         .status(400)
-        .json({ message: "PostBy and Text field is required" });
+        .json({ error: "PostBy and Text field is required" });
     }
 
     const user = await UserModel.findById(postedBy);
 
     if (user._id.toString() !== req.user._id.toString()) {
-      return res.status(400).json({ message: "unAuthorized to create post" });
+      return res.status(400).json({ error: "unAuthorized to create post" });
     }
 
     const maxLength = 500;
     if (text.length > maxLength) {
       return res
         .status(400)
-        .json({ message: `Text must be less than ${maxLength} characters` });
+        .json({ error: `Text must be less than ${maxLength} characters` });
+    }
+
+    if (img) {
+      const uploadedResponse = await cloudinary.uploader.upload(img);
+      img = uploadedResponse.secure_url;
     }
 
     const newPost = new PostModel({ postedBy, text, img });
@@ -29,7 +36,7 @@ export const createPostController = async (req, res, next) => {
       .status(200)
       .json({ message: `Post created successfully`, newPost: newPost });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -37,13 +44,11 @@ export const getPostController = async (req, res) => {
   try {
     const post = await PostModel.findById(req.params.postId);
     if (!post) {
-      return res.status(400).json({ message: "Post not found" });
+      return res.status(400).json({ error: "Post not found" });
     }
     res.status(200).json({ post });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Something went wrong", error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -51,22 +56,20 @@ export const deletePostController = async (req, res) => {
   try {
     const post = await PostModel.findById(req.params.postId);
     if (!post) {
-      return res.status(400).json({ message: "Post not found" });
+      return res.status(400).json({ error: "Post not found" });
     }
 
     if (post.postedBy.toString() !== req.user._id.toString()) {
       return res
         .status(404)
-        .json({ message: "not authorized to delete this post" });
+        .json({ error: "not authorized to delete this post" });
     }
 
     await PostModel.findByIdAndDelete(req.params.postId);
 
     res.status(200).json({ msg: "Post deleted successfully!" });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Something went wrong", error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -79,7 +82,7 @@ export const likeAndUnlikePostController = async (req, res) => {
     //console.log(post.likes.includes(userId));
 
     if (!post) {
-      return res.status(404).json({ message: "Post not found" });
+      return res.status(404).json({ error: "Post not found" });
     }
 
     const userLikedPost = post.likes.includes(userId);
@@ -97,9 +100,7 @@ export const likeAndUnlikePostController = async (req, res) => {
 
     //res.status(200).json({ msg: "Post deleted successfully!" });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Something went wrong", error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -112,12 +113,12 @@ export const replyToPostController = async (req, res) => {
     const username = req.user.username;
 
     if (!text) {
-      return res.status(400).json({ message: "Text Field is required!" });
+      return res.status(400).json({ error: "Text Field is required!" });
     }
 
     const post = await PostModel.findById(postId);
     if (!post) {
-      return res.status(404).json({ message: "Post not found!" });
+      return res.status(404).json({ error: "Post not found!" });
     }
 
     const reply = { userId, text, userProfilePic, username };
@@ -125,9 +126,7 @@ export const replyToPostController = async (req, res) => {
     await post.save();
     res.status(200).json({ message: "post replied successfully", post });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Something went wrong", error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -136,7 +135,7 @@ export const getFeedPostController = async (req, res) => {
     const userId = req.user._id;
     const user = await UserModel.findById(userId);
     if (!user) {
-      return res.status(500).json({ message: "User not found!" });
+      return res.status(500).json({ error: "User not found!" });
     }
     const following = user.following;
     const feedPosts = await PostModel.find({
@@ -144,6 +143,6 @@ export const getFeedPostController = async (req, res) => {
     }).sort({ createdAt: -1 });
     res.status(200).json({ feedPosts });
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong", error: error });
+    res.status(500).json({ error: error });
   }
 };
