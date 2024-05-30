@@ -2,6 +2,8 @@ import UserModel from "../models/user.models.js";
 import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/helpers/generateTokenAndSetCookie.js";
 import { v2 as cloudinary } from "cloudinary";
+import mongoose from "mongoose";
+import e from "express";
 
 export const signupUserController = async (req, res) => {
   try {
@@ -166,16 +168,27 @@ export const updateUserController = async (req, res) => {
 };
 
 export const getUserProfileController = async (req, res) => {
-  const { username } = req.params;
+  // get the user with help of user id or username
+  // query is either username or userId
+  const { query } = req.params;
+  // console.log(username);
+
   try {
-    const user = await UserModel.findOne({ username })
-      .select("-password")
-      .select("-updatedAt");
+    let user;
+    if (mongoose.Types.ObjectId.isValid(query)) {
+      user = await UserModel.findOne({ _id: query })
+        .select("-password")
+        .select("-updatedAt");
+    } else {
+      user = await UserModel.findOne({ username: query })
+        .select("-password")
+        .select("-updatedAt");
+    }
 
     if (!user) {
       return res.status(400).json({ error: "User not found" });
     }
-    res.status(200).json({ user });
+    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

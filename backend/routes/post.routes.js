@@ -6,11 +6,13 @@ import {
   likeAndUnlikePostController,
   replyToPostController,
   getFeedPostController,
+  getUserPostsController,
 } from "../controllers/posts.controllers.js";
 import protectRoutes from "../middlewares/protectRoutes.js";
 
 const router = Router();
 
+router.get("/user/:username", getUserPostsController);
 // get the feed posts
 router.get("/feed", protectRoutes, getFeedPostController);
 
@@ -19,7 +21,7 @@ router
   .get(getPostController)
   .delete(protectRoutes, deletePostController);
 
-router.post("/like/:id", protectRoutes, likeAndUnlikePostController);
-router.post("/reply/:id", protectRoutes, replyToPostController);
+router.put("/like/:id", protectRoutes, likeAndUnlikePostController);
+router.put("/reply/:id", protectRoutes, replyToPostController);
 router.post("/create", protectRoutes, createPostController);
 export default router;

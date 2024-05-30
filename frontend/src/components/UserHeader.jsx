@@ -25,7 +25,7 @@ const UserHeader = ({ user }) => {
   const [updating, setUpdating] = useState(false);
   //console.log(currentUser);
   const [following, setFollowing] = useState(
-    user.followers.includes(currentUser._id)
+    user.followers.includes(currentUser?._id)
   );
   console.log(following);
   const toast = useToast();
@@ -52,7 +52,7 @@ const UserHeader = ({ user }) => {
     }
     try {
       setUpdating(true);
-      const res = await fetch(`/api/users/follow/${user._id}`, {
+      const res = await fetch(`/api/users/follow/${user?._id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -65,11 +65,11 @@ const UserHeader = ({ user }) => {
       }
       // console.log(data);
       if (following) {
-        showToast("Success", `Unfollowed ${user.name}`, "success");
-        user.followers.pop();
+        showToast("Success", `Unfollowed ${user?.name}`, "success");
+        user?.followers.pop();
       } else {
-        showToast("Success", `followed ${user.name}`, "success");
-        user.followers.push(currentUser._id);
+        showToast("Success", `followed ${user?.name}`, "success");
+        user?.followers.push(currentUser?._id);
       }
       setFollowing((prev) => !prev);
     } catch (error) {
@@ -100,17 +100,17 @@ const UserHeader = ({ user }) => {
           </Flex>
         </Box>
         <Box>
-          {user.profilePic && (
+          {user?.profilePic && (
             <Avatar
-              name={user.name}
-              src={user.profilePic || "/zuck-avatar.png"}
+              name={user?.name}
+              src={user?.profilePic || "/zuck-avatar.png"}
               size={{
                 base: "md",
                 md: "xl",
               }}
             />
           )}
-          {!user.profilePic && (
+          {!user?.profilePic && (
             <Avatar
               name={"No Name"}
               src={"https://bit.ly/broken-link"}
@@ -123,20 +123,20 @@ const UserHeader = ({ user }) => {
         </Box>
       </Flex>
 
-      <Text>{user.bio}</Text>
-      {currentUser._id === user._id && (
+      <Text>{user?.bio}</Text>
+      {currentUser?._id === user?._id && (
         <Link to="/updateProfile">
           <Button>Update Profile</Button>
         </Link>
       )}
-      {currentUser._id !== user._id && (
+      {currentUser?._id !== user?._id && (
         <Button onClick={handleFollowAndUnfollow} isLoading={updating}>
           {following ? "unfollow" : "Follow"}
         </Button>
       )}
       <Flex w="full" justifyContent={"space-between"}>
         <Flex gap={2} alignItems={"center"}>
-          <Text color="gray.light">{user.followers.length} followers</Text>
+          <Text color="gray.light">{user?.followers.length} followers</Text>
           <Box w="1" h="1" bg="gray.light" borderRadius={"full"}></Box>
           <Link color="gray.light">instagram.com</Link>
         </Flex>

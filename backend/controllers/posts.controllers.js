@@ -2,6 +2,23 @@ import PostModel from "../models/post.models.js";
 import UserModel from "../models/user.models.js";
 import { v2 as cloudinary } from "cloudinary";
 
+export const getUserPostsController = async (req, res, next) => {
+  const { username } = req.params;
+  try {
+    const user = await UserModel.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const posts = await PostModel.find({ postedBy: user._id }).sort({
+      createdAt: -1,
+    });
+    res.status(200).json(posts);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export const createPostController = async (req, res, next) => {
   const { postedBy, text } = req.body;
   let { img } = req.body;
@@ -46,7 +63,7 @@ export const getPostController = async (req, res) => {
     if (!post) {
       return res.status(400).json({ error: "Post not found" });
     }
-    res.status(200).json({ post });
+    res.status(200).json(post);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -63,6 +80,11 @@ export const deletePostController = async (req, res) => {
       return res
         .status(404)
         .json({ error: "not authorized to delete this post" });
+    }
+
+    if (post.img) {
+      const imgId = post.img.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(imgId);
     }
 
     await PostModel.findByIdAndDelete(req.params.postId);
@@ -109,7 +131,9 @@ export const replyToPostController = async (req, res) => {
     const { id: postId } = req.params;
     const userId = req.user._id;
     const { text } = req.body;
-    const userProfilePic = req.user.userProfilePic;
+    const userProfilePic = req.user.profilePic;
+    console.log("from reply controller ", req.user);
+    console.log("from reply controller ", userProfilePic);
     const username = req.user.username;
 
     if (!text) {
@@ -141,7 +165,7 @@ export const getFeedPostController = async (req, res) => {
     const feedPosts = await PostModel.find({
       postedBy: { $in: following },
     }).sort({ createdAt: -1 });
-    res.status(200).json({ feedPosts });
+    res.status(200).json(feedPosts);
   } catch (error) {
     res.status(500).json({ error: error });
   }

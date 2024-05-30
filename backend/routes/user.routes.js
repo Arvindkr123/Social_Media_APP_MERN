@@ -15,7 +15,7 @@ router.post("/login", loginUserController);
 router.post("/logout", logoutUserController);
 
 // get user profile
-router.get("/profile/:username", getUserProfileController);
+router.get("/profile/:query", getUserProfileController);
 
 // follow user
 router.post("/follow/:id", protectRoutes, followUserController);

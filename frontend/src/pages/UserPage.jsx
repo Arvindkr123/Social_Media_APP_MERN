@@ -1,65 +1,76 @@
 import { useParams } from "react-router-dom";
 import UserHeader from "../components/UserHeader";
-import UserPost from "../components/UserPost";
 import { useEffect, useState } from "react";
 import useShowToast from "./../hooks/useShowToast";
+import { Flex, Spinner, Box, Text } from "@chakra-ui/react";
+import Post from "../components/Post";
+import useGetUserProfile from "../hooks/useGetUserProfile";
 
 const UserPage = () => {
   const { username } = useParams();
-  const [user, setUser] = useState(null);
-  const showToast = useShowToast();
+  const { user, loading } = useGetUserProfile();
   //console.log(user);
+  //console.log(user);
+  const [posts, setPosts] = useState([]);
+  const [fetchingPosts, setFetchingPosts] = useState(true);
+  const showToast = useShowToast();
+
   useEffect(() => {
-    const getUser = async () => {
+    const getPosts = async () => {
+      setFetchingPosts(true);
       try {
-        const res = await fetch(`/api/users/profile/${username}`);
+        const res = await fetch(`/api/posts/user/${username}`);
         const data = await res.json();
-        //console.log(data);
-        setUser(data.user);
         if (data.error) {
           showToast("Error", data.error, "error");
-          return;
+          setPosts([]);
+        } else {
+          setPosts(data);
         }
       } catch (error) {
-        showToast("Error", error, "error");
-        console.log(error);
+        showToast("Error", error.message, "error");
+        setPosts([]);
+      } finally {
+        setFetchingPosts(false);
       }
     };
-    getUser();
+
+    getPosts();
   }, [username, showToast]);
 
-  if (!user) {
-    return null;
+  if (loading) {
+    return (
+      <Flex justifyContent="center" alignItems="center" height="100vh">
+        <Spinner size="xl" />
+      </Flex>
+    );
   }
 
+  if (!user) {
+    return (
+      <Flex justifyContent="center" alignItems="center" height="100vh">
+        <Text>User not found</Text>
+      </Flex>
+    );
+  }
+
+  console.log(posts);
+
   return (
-    <div>
+    <Box>
       <UserHeader user={user} />
-      <UserPost
-        likes={1200}
-        replies={481}
-        postImg={"/post1.png"}
-        title="Let's talk about threads"
-      />
-      <UserPost
-        likes={451}
-        replies={123}
-        postImg={"/post2.png"}
-        title="Let's do something"
-      />
-      <UserPost
-        likes={687}
-        replies={433}
-        postImg={"/post3.png"}
-        title="I love this guy"
-      />
-      <UserPost
-        likes={366}
-        replies={212}
-        postImg={"/favicon.png"}
-        title="this is great thing to say about"
-      />
-    </div>
+      {!fetchingPosts && posts.length === 0 && <h1>User has no Posts</h1>}
+      {fetchingPosts && (
+        <Flex justifyContent={"center"} my={12}>
+          <Spinner size={"xl"} />
+        </Flex>
+      )}
+
+      {posts.map((post) => (
+        <Post key={post._id} post={post} userId={post.postedBy} />
+      ))}
+    </Box>
   );
 };
+
 export default UserPage;
