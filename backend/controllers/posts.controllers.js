@@ -49,9 +49,7 @@ export const createPostController = async (req, res, next) => {
 
     const newPost = new PostModel({ postedBy, text, img });
     await newPost.save();
-    res
-      .status(200)
-      .json({ message: `Post created successfully`, newPost: newPost });
+    res.status(200).json(newPost);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -148,7 +146,7 @@ export const replyToPostController = async (req, res) => {
     const reply = { userId, text, userProfilePic, username };
     post.replies.push(reply);
     await post.save();
-    res.status(200).json({ message: "post replied successfully", post });
+    res.status(200).json(reply);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

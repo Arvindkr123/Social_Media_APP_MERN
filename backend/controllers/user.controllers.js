@@ -4,6 +4,7 @@ import generateTokenAndSetCookie from "../utils/helpers/generateTokenAndSetCooki
 import { v2 as cloudinary } from "cloudinary";
 import mongoose from "mongoose";
 import e from "express";
+import PostModel from "../models/post.models.js";
 
 export const signupUserController = async (req, res) => {
   try {
@@ -160,6 +161,19 @@ export const updateUserController = async (req, res) => {
     user.bio = bio || user.bio;
     user = await user.save();
     // password should be null in response
+
+    // find all posts that this user replied and update username and profilePic fields
+    await PostModel.updateMany(
+      { "replies.userId": user._id },
+      {
+        $set: {
+          "replies.$[reply].username": user.username,
+          "replies.$[reply].userProfilePic": user.profilePic,
+        },
+      },
+      { arrayFilters: [{ "reply.userId": user._id }] }
+    );
+
     user.password = null;
     res.status(200).json({ user });
   } catch (error) {

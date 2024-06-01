@@ -18,16 +18,19 @@ import { useEffect, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
 import { formatDistanceToNow } from "date-fns";
 import { DeleteIcon } from "@chakra-ui/icons";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import userAtom from "../atoms/user.atoms";
+import postsAtom from "../atoms/posts.Atoms";
 
 const Post = ({ post, userId }) => {
   // console.log(post, userId);
   const currentUser = useRecoilValue(userAtom);
+  const [posts, setPosts] = useRecoilState(postsAtom);
   //console.log(currentUser);
   const showToast = useShowToast();
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  // console.log(posts);
 
   const toast = useToast();
   const copyURL = () => {
@@ -86,6 +89,7 @@ const Post = ({ post, userId }) => {
         showToast("Error", data.error, "error");
         return;
       }
+      setPosts(posts.filter((p) => p._id !== post?._id));
       showToast("Success", "Post has been deleted successfully!", "success");
     } catch (error) {
       showToast("Error", error.message, "error");
