@@ -91,10 +91,10 @@ const PostPage = () => {
     <>
       <Flex>
         <Flex w="full" alignItems={"center"} gap="3">
-          <Avatar src="/zuck-avatar.png" size={"md"} name="Mark" />
+          <Avatar src={user?.profilePic} size={"md"} name={user?.name} />
           <Flex>
             <Text fontSize={"sm"} fontWeight={"bold"}>
-              Mark Zucker berg
+              {user?.username}
             </Text>
             <Image src="/verified.png" w="4" h="4" ml="4" />
           </Flex>

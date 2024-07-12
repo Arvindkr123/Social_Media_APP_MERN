@@ -175,7 +175,7 @@ export const updateUserController = async (req, res) => {
     );
 
     user.password = null;
-    res.status(200).json({ user });
+    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
